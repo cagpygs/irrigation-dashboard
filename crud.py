@@ -4,7 +4,6 @@ import os   # ✅ Add this
 import plotly.express as px
 import streamlit as st
 import pandas as pd
-import datetime
 
 import psycopg2
 import pandas as pd
@@ -22,7 +21,6 @@ import io
 
 
 # ================= DB CONNECTION =================
-@st.cache_resource
 def get_connection():
     return psycopg2.connect(
         host=os.environ.get("DB_HOST"),
