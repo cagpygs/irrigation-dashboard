@@ -107,7 +107,7 @@ is_admin = st.session_state.role == "admin"
 top_col1, top_col2, top_col3 = st.columns([7, 2, 1])
 
 with top_col1:
-    st.title("Irrigation Management Dashboard")
+    st.title("Canal Management Dashboard")
 
 with top_col2:
     st.markdown(
@@ -178,7 +178,7 @@ if not is_admin:
                 if value not in ("", None):
                     filled_fields += 1
 
-            if can_edit and st.button(f"💾 Save {table}", key=f"save_{table}"):
+            if st.button(f"💾 Save {table}", key=f"save_{table}"):
                 if not can_edit:
                     st.warning("You cannot edit this application unless it is rejected.")
 
@@ -193,7 +193,7 @@ if not is_admin:
     st.markdown("---")
     st.subheader("Final Master Submission")
 
-    if can_edit and st.button("🚀 Submit Complete Application"):
+    if st.button("🚀 Submit Complete Application"):
 
         incomplete_sections = get_incomplete_forms(user_id)
 
