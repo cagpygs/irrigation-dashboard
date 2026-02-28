@@ -292,6 +292,7 @@ def reject_master_submission(master_id, reason):
     conn = get_connection()
     cur = conn.cursor()
 
+    # 1️⃣ Update master table
     cur.execute("""
         UPDATE master_submission
         SET status='REJECTED',
@@ -299,6 +300,21 @@ def reject_master_submission(master_id, reason):
             rejected_at=NOW()
         WHERE id=%s
     """, (reason, master_id))
+
+    # 2️⃣ Update all related form tables
+    tables = get_all_tables(conn)
+
+    for table in tables:
+
+        update_query = sql.SQL("""
+            UPDATE {table}
+            SET approval_status='REJECTED'
+            WHERE master_id=%s
+        """).format(
+            table=sql.Identifier(table)
+        )
+
+        cur.execute(update_query, (master_id,))
 
     conn.commit()
     conn.close()
