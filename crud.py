@@ -40,18 +40,19 @@ def get_all_tables(conn=None):
         conn = get_connection()
         close_conn = True
 
+    df = pd.read_sql("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema='public'
+        AND table_type='BASE TABLE'
+        AND table_name NOT IN ('users', 'master_submission')
+        ORDER BY table_name
+    """, conn)
+
     if close_conn:
         conn.close()
 
     return df["table_name"].tolist()
-
-
-# ================= GET USERS =================
-def get_all_users():
-    conn = get_connection()
-    df = pd.read_sql("SELECT id, username FROM users ORDER BY username", conn)
-    conn.close()
-    return df
 
 
 # ================= GET NEXT CYCLE =================
