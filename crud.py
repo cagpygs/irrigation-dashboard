@@ -3,7 +3,6 @@ import datetime
 import psycopg2
 import pandas as pd
 import io
-import streamlit as st
 
 from psycopg2 import sql
 
@@ -16,21 +15,16 @@ import io
 
 
 # ================= DB CONNECTION =================
-import os
-import psycopg2
-
 def get_connection():
     return psycopg2.connect(
-        host=os.environ.get("DB_HOST"),
-        database=os.environ.get("DB_NAME"),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASSWORD"),
-        port=os.environ.get("DB_PORT")
+        host="localhost",
+        database="Irrigation",
+        user="postgres",
+        password="123456"
     )
 
 
 # ================= LOAD TABLES =================
-@st.cache_data(ttl=300)
 def get_all_tables():
     conn = get_connection()
     df = pd.read_sql("""
@@ -46,7 +40,6 @@ def get_all_tables():
 
 
 # ================= GET USERS =================
-@st.cache_data(ttl=300)
 def get_all_users():
     conn = get_connection()
     df = pd.read_sql("SELECT id, username FROM users ORDER BY username", conn)
@@ -212,7 +205,6 @@ def create_master_submission(user_id):
 
 
 # ================= GET USER MASTER SUBMISSIONS =================
-@st.cache_data(ttl=300)
 def get_user_master_submissions(user_id):
 
     user_id = int(user_id)
@@ -232,7 +224,6 @@ def get_user_master_submissions(user_id):
 
 
 # ================= GET FULL SUBMISSION DATA =================
-@st.cache_data(ttl=300)
 def get_full_submission_data(master_id):
 
     conn = get_connection()
@@ -362,7 +353,6 @@ def get_incomplete_forms(user_id):
 
 
 # ================= STATUS COUNTS =================
-@st.cache_data(ttl=300)
 def get_user_master_status_counts(user_id):
 
     user_id = int(user_id)
@@ -516,7 +506,6 @@ def export_master_submission_pdf(master_id):
     return buffer
 
 # ================= GET TABLE COLUMNS =================
-@st.cache_data(ttl=300)
 def get_table_columns(table, is_admin=False):
 
     conn = get_connection()
