@@ -35,17 +35,16 @@ def get_connection():
 
 
 # ================= LOAD TABLES =================
-def get_all_tables():
-    conn = get_connection()
-    df = pd.read_sql("""
-        SELECT table_name
-        FROM information_schema.tables
-        WHERE table_schema='public'
-        AND table_type='BASE TABLE'
-        AND table_name NOT IN ('users', 'master_submission')
-        ORDER BY table_name
-    """, conn)
-    conn.close()
+def get_all_tables(conn=None):
+    close_conn = False
+
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    if close_conn:
+        conn.close()
+
     return df["table_name"].tolist()
 
 
@@ -198,7 +197,7 @@ def create_master_submission(user_id):
 
     master_id = cur.fetchone()[0]
 
-    tables = get_all_tables()
+    tables = get_all_tables(conn)
 
     # Attach drafts to master
     for table in tables:
@@ -237,7 +236,7 @@ def get_user_master_submissions(user_id):
 def get_full_submission_data(master_id):
 
     conn = get_connection()
-    tables = get_all_tables()
+    tables = get_all_tables(conn)
 
     full_data = {}
 
@@ -270,7 +269,7 @@ def approve_master_submission(master_id):
     """, (master_id,))
 
     # 2️⃣ Update all related form tables
-    tables = get_all_tables()
+    tables = get_all_tables(conn)
 
     for table in tables:
 
@@ -314,7 +313,7 @@ def get_user_progress(user_id):
     conn = get_connection()
     cur = conn.cursor()
 
-    tables = get_all_tables()
+    tables = get_all_tables(conn)
     total = len(tables)
     completed = 0
 
@@ -344,7 +343,7 @@ def get_incomplete_forms(user_id):
     conn = get_connection()
     cur = conn.cursor()
 
-    tables = get_all_tables()
+    tables = get_all_tables(conn)
     incomplete = []
 
     for table in tables:
@@ -409,7 +408,7 @@ def export_master_submission_pdf(master_id):
     status = master_row[0] if master_row else ""
     rejection_reason = master_row[1] if master_row else None
 
-    tables = get_all_tables()
+    tables = get_all_tables(conn)
 
     buffer = io.BytesIO()
 
@@ -587,7 +586,7 @@ def get_users_with_data():
     submitted_users = pd.read_sql(submitted_query, conn)["user_id"].tolist()
 
     # Users with drafts in any table
-    tables = get_all_tables()
+    tables = get_all_tables(conn)
     draft_users = set()
 
     for table in tables:
