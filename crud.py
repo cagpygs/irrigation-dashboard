@@ -29,6 +29,7 @@ def get_connection():
 
 
 # ================= LOAD TABLES =================
+@st.cache_data(ttl=300)
 def get_all_tables():
     conn = get_connection()
     df = pd.read_sql("""
@@ -44,6 +45,7 @@ def get_all_tables():
 
 
 # ================= GET USERS =================
+@st.cache_data(ttl=300)
 def get_all_users():
     conn = get_connection()
     df = pd.read_sql("SELECT id, username FROM users ORDER BY username", conn)
@@ -209,6 +211,7 @@ def create_master_submission(user_id):
 
 
 # ================= GET USER MASTER SUBMISSIONS =================
+@st.cache_data(ttl=300)
 def get_user_master_submissions(user_id):
 
     user_id = int(user_id)
@@ -228,6 +231,7 @@ def get_user_master_submissions(user_id):
 
 
 # ================= GET FULL SUBMISSION DATA =================
+@st.cache_data(ttl=300)
 def get_full_submission_data(master_id):
 
     conn = get_connection()
@@ -357,6 +361,7 @@ def get_incomplete_forms(user_id):
 
 
 # ================= STATUS COUNTS =================
+@st.cache_data(ttl=300)
 def get_user_master_status_counts(user_id):
 
     user_id = int(user_id)
@@ -510,6 +515,7 @@ def export_master_submission_pdf(master_id):
     return buffer
 
 # ================= GET TABLE COLUMNS =================
+@st.cache_data(ttl=300)
 def get_table_columns(table, is_admin=False):
 
     conn = get_connection()
