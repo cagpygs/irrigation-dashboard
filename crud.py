@@ -16,16 +16,6 @@ import io
 
 
 # ================= DB CONNECTION =================
-def get_connection():
-    return psycopg2.connect(
-        host="localhost",
-        database="Irrigation",
-        user="postgres",
-        password="123456"
-    )
-
-
-# ================= LOAD TABLES =================
 @st.cache_resource
 def get_connection():
     return psycopg2.connect(
@@ -38,8 +28,22 @@ def get_connection():
     )
 
 
+# ================= LOAD TABLES =================
+def get_all_tables():
+    conn = get_connection()
+    df = pd.read_sql("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema='public'
+        AND table_type='BASE TABLE'
+        AND table_name NOT IN ('users', 'master_submission')
+        ORDER BY table_name
+    """, conn)
+    conn.close()
+    return df["table_name"].tolist()
+
+
 # ================= GET USERS =================
-@st.cache_resource
 def get_all_users():
     conn = get_connection()
     df = pd.read_sql("SELECT id, username FROM users ORDER BY username", conn)
@@ -68,7 +72,6 @@ def get_next_cycle(user_id):
 
 
 # ================= SAVE DRAFT =================
-@st.cache_resource
 def save_draft_record(table, data, user_id):
 
     user_id = int(user_id)
@@ -172,7 +175,6 @@ def save_draft_record(table, data, user_id):
 
 
 # ================= CREATE MASTER SUBMISSION =================
-@st.cache_resource
 def create_master_submission(user_id):
 
     user_id = int(user_id)
@@ -207,7 +209,6 @@ def create_master_submission(user_id):
 
 
 # ================= GET USER MASTER SUBMISSIONS =================
-@st.cache_resource
 def get_user_master_submissions(user_id):
 
     user_id = int(user_id)
@@ -227,7 +228,6 @@ def get_user_master_submissions(user_id):
 
 
 # ================= GET FULL SUBMISSION DATA =================
-@st.cache_resource
 def get_full_submission_data(master_id):
 
     conn = get_connection()
@@ -250,7 +250,6 @@ def get_full_submission_data(master_id):
 
 
 # ================= APPROVE MASTER =================
-@st.cache_resource
 def approve_master_submission(master_id):
 
     conn = get_connection()
@@ -284,7 +283,6 @@ def approve_master_submission(master_id):
 
 
 # ================= REJECT MASTER =================
-@st.cache_resource
 def reject_master_submission(master_id, reason):
 
     conn = get_connection()
@@ -333,7 +331,6 @@ def get_user_progress(user_id):
 
 
 # ================= INCOMPLETE SECTIONS =================
-@st.cache_resource
 def get_incomplete_forms(user_id):
 
     user_id = int(user_id)
@@ -360,7 +357,6 @@ def get_incomplete_forms(user_id):
 
 
 # ================= STATUS COUNTS =================
-@st.cache_resource
 def get_user_master_status_counts(user_id):
 
     user_id = int(user_id)
